@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  ezsharesynctool:
+    build: .
+    restart: always
+    devices:
+      - /dev/fuse
+    cap_add:
+      - SYS_ADMIN
+    network_mode: host
+    security_opt:
+      - apparmor=unconfined
+    environment:
+      - WEBDRIVE_DIR=/mnt/webdrive
+      - WEBDRIVE_USER=Me
+      - WEBDRIVE_PASSWORD=MegaSecretto
+      - WEBDRIVE_URL=https://my.nextcloud.tld/remote.php/webdav
+      - DAVFS2_ASK_AUTH=0
+      - OWNER=1000
+      - EZSHARE_LIVE_TIMEOUT=7200
+      - EZSHARE_REMOTE_DIR=/

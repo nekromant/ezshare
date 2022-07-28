@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ezshare"
+version = "0.0.1"
+authors = [
+  { name="Andrew 'Necromant' Andrianov", email="andrew@ncrmnt.org" },
+]
+description = "A simple library and commandline tool to access EzShare WiFi SD Cards"
+readme = "README.md"
+license = { file="LICENSE" }
+requires-python = ">=3.7"
+dependencies = [
+    "requests>=2", 
+    "lxml>=4.6", 
+    "tqdm>=4.6",
+    "parse>=1.18"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: Public Domain :: WTFPLv2",
+    "Operating System :: OS Independent",
+]
+
+[project.scripts]
+ezshare-cli = "ezshare:__main__.main"
+
+[project.urls]
+"Homepage" = "https://github.com/nekromant/ezshare-python"
+"Bug Tracker" = "https://github.com/nekromant/ezshare-python/issues"
+
+[tool.setuptools]
+packages = ["ezshare"]
