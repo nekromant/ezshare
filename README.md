@@ -2,6 +2,8 @@
 
 A python library and commandline tool to access and sync data from a ezShare WIFI SD Card.
 
+[![asciicast](https://asciinema.org/a/R7jcHXTVy1rP97TQdyQfSFwf8.svg)](https://asciinema.org/a/R7jcHXTVy1rP97TQdyQfSFwf8)
+
 
 # How to install?
 
