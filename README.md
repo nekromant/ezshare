@@ -86,7 +86,7 @@ Synchronizing remote /DCIM/101CANON/IMG_0356.JPG -> .
 
 ```
 Synchronizing remote /DCIM/101CANON/IMG_0356.JPG -> /tmp/
-/tmp/IMG_0356.JPG: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 4.45M/4.45M [00:02<00:00, 1.68MB/s]
+/tmp/IMG_0356.JPG: 100%|███████████████| 4.45M/4.45M [00:02<00:00, 1.68MB/s]
 ```
 
 ## Recursively download a directory
@@ -94,8 +94,8 @@ Synchronizing remote /DCIM/101CANON/IMG_0356.JPG -> /tmp/
 ```
 $ ezshare-cli -r -d / -t /tmp/SD_CONTENTS/
 Synchronizing remote / -> /tmp/SD_CONTENTS/
-/tmp/SD_CONTENTS/DCIM/101CANON/IMG_0356.JPG: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 4.45M/4.45M [00:05<00:00, 862kB/s]
-/tmp/SD_CONTENTS/DCIM/101CANON/IMG_0357.JPG: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 2.86M/2.86M [00:02<00:00, 1.04MB/s]
+/tmp/SD_CONTENTS/DCIM/101CANON/IMG_0356.JPG: 100%|███████████████| 4.45M/4.45M [00:05<00:00, 862kB/s]
+/tmp/SD_CONTENTS/DCIM/101CANON/IMG_0357.JPG: 100%|███████████████| 2.86M/2.86M [00:02<00:00, 1.04MB/s]
 ```
 
 ## Wait for the card connection and synchronize contents when the card is available
@@ -105,8 +105,8 @@ Synchronizing remote / -> /tmp/SD_CONTENTS/
 $ ezshare-cli -w -r -d / -t /tmp/SD_CONTENTS/
 Waiting for ezShare card...ONLINE!
 Synchronizing remote / -> /tmp/SD_CONTENTS/
-/tmp/SD_CONTENTS/DCIM/101CANON/IMG_0356.JPG: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 4.45M/4.45M [00:05<00:00, 862kB/s]
-/tmp/SD_CONTENTS/DCIM/101CANON/IMG_0357.JPG: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 2.86M/2.86M [00:02<00:00, 1.04MB/s]
+/tmp/SD_CONTENTS/DCIM/101CANON/IMG_0356.JPG: 100%|███████████████| 4.45M/4.45M [00:05<00:00, 862kB/s]
+/tmp/SD_CONTENTS/DCIM/101CANON/IMG_0357.JPG: 100%|███████████████| 2.86M/2.86M [00:02<00:00, 1.04MB/s]
 0 ✓ necromant @ silverblade /tmp $ 
 
 ```
@@ -121,8 +121,8 @@ the photos will automagically sync to the cloud as soon as you connect your card
 $ ezshare-cli -w -r -d / -t /tmp/SD_CONTENTS/ --live 10
 Waiting for ezShare card.ONLINE!
 Synchronizing remote / -> /tmp/SD_CONTENTS/
-/tmp/SD_CONTENTS/DCIM/101CANON/IMG_0356.JPG: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 4.45M/4.45M [00:05<00:00, 904kB/s]
-/tmp/SD_CONTENTS/DCIM/101CANON/IMG_0357.JPG: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 2.86M/2.86M [00:02<00:00, 1.08MB/s]
+/tmp/SD_CONTENTS/DCIM/101CANON/IMG_0356.JPG: 100%|████████████████| 4.45M/4.45M [00:05<00:00, 904kB/s]
+/tmp/SD_CONTENTS/DCIM/101CANON/IMG_0357.JPG: 100%|████████████████| 2.86M/2.86M [00:02<00:00, 1.08MB/s]
 Live mode. Next sync in 10 seconds
 Waiting for ezShare card.ONLINE!
 Synchronizing remote / -> /tmp/SD_CONTENTS/
@@ -142,5 +142,13 @@ Check out my blog for a neat trick: TODO
 
 # Extra
 
-Check out the docker/ directory for a docker-compose.yml file and dockerfiles for an automated webdav uploader that I'm running.
-The idea is simple: Mount webdav via fuse inside the docker container and run the 'live' mode in background.
+Check out the docker-compose.yml and Dockerfile for an automated webdav uploader that I'm running.
+It's not yet up at dockerhub, but I plan to fix it soon.
+
+The idea is simple: 
+
+* Mount webdav via fuse inside the docker container, 
+* Run the 'live' mode of ezshare, 
+* Get all the photos delivered into your cloud file storage.
+* ...
+* PROFIT!
