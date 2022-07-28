@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ezshare"
-version = "0.0.5"
+version = "0.0.6"
 authors = [
   { name="Andrew 'Necromant' Andrianov", email="andrew@ncrmnt.org" },
 ]
@@ -20,7 +20,7 @@ dependencies = [
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: Public Domain :: WTFPLv2",
+    "License :: Public Domain",
     "Operating System :: OS Independent",
 ]
 
