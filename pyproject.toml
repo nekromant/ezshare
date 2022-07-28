@@ -28,8 +28,8 @@ classifiers = [
 ezshare-cli = "ezshare:__main__.main"
 
 [project.urls]
-"Homepage" = "https://github.com/nekromant/ezshare-python"
-"Bug Tracker" = "https://github.com/nekromant/ezshare-python/issues"
+"Homepage" = "https://github.com/nekromant/python-ezshare"
+"Bug Tracker" = "https://github.com/nekromant/python-ezshare/issues"
 
 [tool.setuptools]
 packages = ["ezshare"]
