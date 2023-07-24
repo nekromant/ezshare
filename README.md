@@ -152,3 +152,12 @@ The idea is simple:
 * Get all the photos delivered into your cloud file storage.
 * ...
 * PROFIT!
+
+# Changelog
+
+v0.0.11 - bugfix release
+
+  * Fixed handling empty dirs (#1). Thanks to @gustou.
+  * Implement retry logic on buggy cards. Thanks to @dieu
+
+v0.0.10 - initial release.
