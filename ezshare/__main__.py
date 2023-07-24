@@ -44,10 +44,11 @@ class ezshare():
                 has_dotiles=True
                 continue
             if self.is_dir(href):
+                ret[name] = {}
                 if recursive:
-                    ret[name] = self.listdir(f"{dir}/{name}", recursive=recursive)
-                else:
-                    ret[name] = {}
+                    dir_content = self.listdir(f"{dir}/{name}", recursive=recursive)
+                    if dir_content is not None:
+                        ret[name] = dir_content
             else:
                 ret[name] = href
         if not has_dotiles: #No dotfiles or ezshare.cfg? This must not be a directory
