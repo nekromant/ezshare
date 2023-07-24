@@ -9,8 +9,9 @@ import time
 import sys
 
 class ezshare():
-    def __init__(self, url="http://ezshare.card/dir?dir=A:"):
+    def __init__(self, url="http://ezshare.card/dir?dir=A:", num_retries=5):
         self.base = url
+        self.num_retries = num_retries
 
     def is_dir(self, href):
         r = parse("{}/download?file={name}", href)
@@ -95,6 +96,18 @@ class ezshare():
                         pbar.update(len(data))
             return True
 
+    def _dload_with_retry(self, link, file_name):
+        last_exception = None
+        for retries in range(self.num_retries):
+            try:
+                return self._dload(link, file_name)
+            except requests.exceptions.ConnectionError as err:
+                print(f"Retrying link: {link} ({retries} times)")
+                last_exception = err
+        if last_exception is not None:
+            raise last_exception
+        return False
+
     def download(self, remote_file, local_file=None, recursive=False):
         if local_file == None:
             local_file = path.basename(remote_file)
@@ -105,15 +118,17 @@ class ezshare():
         remote_dir = path.dirname(remote_file)
         basename = path.basename(remote_file)
         link = self.listdir(remote_dir, recursive)[basename]
-        self._dload(link, local_file)
+        self._dload_with_retry(link, local_file)
 
     def _sync_list(self, todo, local_dir):
         os.makedirs(local_dir, exist_ok=True)
         for k,v in todo.items():
             if type(v) is dict:
                 self._sync_list(v, path.join(local_dir, k))
+            elif v:
+                self._dload_with_retry(v, path.join(local_dir, k))
             else:
-                self._dload(v, path.join(local_dir, k))
+                print(f"Skipping sync of {k} because link is {v}")
 
     def sync(self, remote_dir, local_dir=".", recursive=False):
         if local_dir == None:
