@@ -1,3 +1,4 @@
+import binascii
 from lxml.html import parse as parse_url
 from parse import parse
 import requests
@@ -73,34 +74,41 @@ class ezshare():
         stream.seek(pos)
         return ln - pos
 
-    def _dload(self, link, file_name):
+    def _dload(self, link, file_name, crc):
         with open(file_name, "ab") as f:
             f.seek(0)
             response = requests.head(link)
             curlength = self.stream_size(f)
             total_length = int(response.headers.get('content-length'))
-            if curlength == total_length:
+            if not crc and curlength == total_length:
                 print(f"Skipping file {file_name} (same size)")
-                return True
-            f.truncate()
+                return True        
 
             response = requests.get(link, stream=True)
             if total_length is None: # no content length header
+                f.truncate()
                 f.write(response.content)
-            else:
-                dl = 0
-                total_length = int(total_length)
-                with tqdm(desc=file_name, total=total_length, unit='B', unit_scale=True, unit_divisor=1024, miniters=1) as pbar:
-                    for data in response.iter_content(chunk_size=4096):
-                        f.write(data)
-                        pbar.update(len(data))
+                return True
+            elif crc and curlength == total_length:
+                f_crc32_hash = binascii.crc32(f.read())
+                r_crc32_hash = binascii.crc32(response.content)
+                if f_crc32_hash == r_crc32_hash:
+                    print(f"Skipping file {file_name} (same crc32 sum)")
+                    return True
+
+            total_length = int(total_length)
+            with tqdm(desc=file_name, total=total_length, unit='B', unit_scale=True, unit_divisor=1024, miniters=1) as pbar:
+                f.truncate(0)
+                for data in response.iter_content(chunk_size=4096):
+                    f.write(data)
+                    pbar.update(len(data))
             return True
 
-    def _dload_with_retry(self, link, file_name):
+    def _dload_with_retry(self, link, file_name, crc):
         last_exception = None
         for retries in range(self.num_retries):
             try:
-                return self._dload(link, file_name)
+                return self._dload(link, file_name, crc)
             except requests.exceptions.ConnectionError as err:
                 print(f"Retrying link: {link} ({retries} times)")
                 last_exception = err
@@ -108,7 +116,7 @@ class ezshare():
             raise last_exception
         return False
 
-    def download(self, remote_file, local_file=None, recursive=False):
+    def download(self, remote_file, local_file=None, recursive=False, crc=False):
         if local_file == None:
             local_file = path.basename(remote_file)
         if local_file[-1]=="/":
@@ -118,25 +126,25 @@ class ezshare():
         remote_dir = path.dirname(remote_file)
         basename = path.basename(remote_file)
         link = self.listdir(remote_dir, recursive)[basename]
-        self._dload_with_retry(link, local_file)
+        self._dload_with_retry(link, local_file, crc)
 
-    def _sync_list(self, todo, local_dir):
+    def _sync_list(self, todo, local_dir, crc):
         os.makedirs(local_dir, exist_ok=True)
         for k,v in todo.items():
             if type(v) is dict:
-                self._sync_list(v, path.join(local_dir, k))
+                self._sync_list(v, path.join(local_dir, k), crc)
             elif v:
-                self._dload_with_retry(v, path.join(local_dir, k))
+                self._dload_with_retry(v, path.join(local_dir, k), crc)
             else:
                 print(f"Skipping sync of {k} because link is {v}")
 
-    def sync(self, remote_dir, local_dir=".", recursive=False):
+    def sync(self, remote_dir, local_dir=".", recursive=False, crc=False):
         if local_dir == None:
             local_dir = "."
 
         todo = self.listdir(remote_dir, recursive=recursive)
         if todo is None:
-            self.download(remote_dir, local_dir)
+            self.download(remote_dir, local_dir, crc=crc)
         else:
             self._sync_list(todo, local_dir)
 
@@ -157,7 +165,7 @@ def _handle_args_once(args, s):
         s.print_list(d)
     if not args.download is None:
         print(f"Synchronizing remote {args.download} -> {args.target}")
-        s.sync(args.download, args.target, recursive=args.recursive)
+        s.sync(args.download, args.target, recursive=args.recursive, crc=args.crc)
     
 def main():
     import argparse
@@ -168,6 +176,7 @@ def main():
     parser.add_argument('-r', '--recursive', action="store_true", default=False, help="Recurse to subdirs on list/download")
     parser.add_argument('-t', '--target', default=".", help="Specify target directory for downloads")
     parser.add_argument('-w', '--wait',  action="store_true", default=False, help="Wait for WiFi SD to appear on the network")
+    parser.add_argument('-c', '--crc', action="store_true", default=False, help="Enable CRC check on files")
     parser.add_argument('--live', type=int, default=-1, help="Live mode. Don't exit after syncronisation."
                                                              "The argument specifies cooldown in seconds between sync. See docs for details")
 
