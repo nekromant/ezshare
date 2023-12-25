@@ -34,8 +34,10 @@ class ezshare():
 
     def listdir(self, dir, recursive=False, shift=0):
         ret = {}
+        is_root = False
         if dir=="/":
             dir=""
+            is_root = True
         dir=dir.replace("/","\\")
         soup = self._get(f"{self.base}{dir}")
         has_dotiles=False
@@ -53,7 +55,8 @@ class ezshare():
                         ret[name] = dir_content
             else:
                 ret[name] = href
-        if not has_dotiles: #No dotfiles or ezshare.cfg? This must not be a directory
+        #No dotfiles or ezshare.cfg and is not root? This must not be a directory
+        if not has_dotiles and not is_root: 
             return None
         return ret
 
