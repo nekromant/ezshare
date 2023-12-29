@@ -78,7 +78,7 @@ class ezshare():
         return ln - pos
 
     def _dload(self, link, file_name, crc):
-        with open(file_name, "ab") as f:
+        with open(file_name, "a+b") as f:
             f.seek(0)
             response = requests.head(link)
             curlength = self.stream_size(f)
@@ -149,7 +149,7 @@ class ezshare():
         if todo is None:
             self.download(remote_dir, local_dir, crc=crc)
         else:
-            self._sync_list(todo, local_dir)
+            self._sync_list(todo, local_dir, crc)
 
 def _handle_args_once(args, s):
     if args.wait:
