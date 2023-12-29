@@ -112,11 +112,11 @@ class ezshare():
         for retries in range(self.num_retries):
             try:
                 return self._dload(link, file_name, crc)
-            except requests.exceptions.ConnectionError as err:
+            except (requests.exceptions.ConnectionError, requests.exceptions.ChunkedEncodingError) as err:
                 print(f"Retrying link: {link} ({retries} times)")
                 last_exception = err
         if last_exception is not None:
-            raise last_exception
+            print(f"Failed to download {link}: {last_exception}")
         return False
 
     def download(self, remote_file, local_file=None, recursive=False, crc=False):
@@ -149,7 +149,7 @@ class ezshare():
         if todo is None:
             self.download(remote_dir, local_dir, crc=crc)
         else:
-            self._sync_list(todo, local_dir)
+            self._sync_list(todo, local_dir, crc)
 
 def _handle_args_once(args, s):
     if args.wait:
@@ -174,6 +174,7 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(description='Unofficial ezShare cli tool')
+    parser.add_argument('-n', '--number_retries', type=int, default=5, help="Number of retries on failed downloads")
     parser.add_argument('-l', '--list', help="List remote directory")
     parser.add_argument('-d', '--download', help="Download a remote file or directory")
     parser.add_argument('-r', '--recursive', action="store_true", default=False, help="Recurse to subdirs on list/download")
@@ -184,7 +185,7 @@ def main():
                                                              "The argument specifies cooldown in seconds between sync. See docs for details")
 
     args = parser.parse_args()
-    s = ezshare()
+    s = ezshare(num_retries=args.number_retries)
     while True:
         _handle_args_once(args, s)
         if args.live >= 0:
