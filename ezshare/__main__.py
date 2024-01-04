@@ -78,7 +78,7 @@ class ezshare():
         return ln - pos
 
     def _dload(self, link, file_name, crc):
-        with open(file_name, "ab") as f:
+        with open(file_name, "a+b") as f:
             f.seek(0)
             response = requests.head(link)
             curlength = self.stream_size(f)
