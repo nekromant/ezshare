@@ -1,16 +1,13 @@
-import binascii
 from lxml.html import parse as parse_url
 from parse import parse
 import requests
 from tqdm import tqdm
 from os import path
 import os
-import io
 import time
-import sys
 
 class ezshare():
-    def __init__(self, url="http://ezshare.card/dir?dir=A:", num_retries=5):
+    def __init__(self, url, num_retries=5):
         self.base = url
         self.num_retries = num_retries
 
@@ -26,7 +23,8 @@ class ezshare():
 
     def ping(self):
         try:
-            self._get(self.base)
+            response = requests.get(self.base, timeout=0.5)
+            response.raise_for_status()
             return True
         except:
             return False
@@ -55,7 +53,7 @@ class ezshare():
             else:
                 ret[name] = href
         #No dotfiles or ezshare.cfg and is not root? This must not be a directory
-        if not has_dotiles and not is_root: 
+        if not has_dotiles and not is_root:
             return None
         return ret
 
@@ -82,10 +80,10 @@ class ezshare():
             response = requests.head(link)
             curlength = self.stream_size(f)
             total_length = int(response.headers.get('content-length'))
-            
+
             if curlength == total_length:
                 print(f"Skipping file {file_name} (same size)")
-                return True        
+                return True
 
             response = requests.get(link, stream=True)
             if total_length is None: # no content length header
@@ -147,14 +145,13 @@ class ezshare():
 
 def _handle_args_once(args, s):
     if args.wait:
-        print("Waiting for ezShare card.", end='')
+        print("Waiting for ezShare card.", end='', flush=True)
         while True:
             if s.ping():
                 break
             time.sleep(1)
-            print(".", end='')
-            sys.stdout.flush()
-        print("ONLINE!")
+            print(".", end='', flush=True)
+        print("ONLINE!", flush=True)
 
     if not args.list is None:
         print(f"Listing remote directory: {args.list}")
@@ -163,7 +160,7 @@ def _handle_args_once(args, s):
     if not args.download is None:
         print(f"Synchronizing remote {args.download} -> {args.target}")
         s.sync(args.download, args.target, recursive=args.recursive)
-    
+
 def main():
     import argparse
 
@@ -174,11 +171,13 @@ def main():
     parser.add_argument('-r', '--recursive', action="store_true", default=False, help="Recurse to subdirs on list/download")
     parser.add_argument('-t', '--target', default=".", help="Specify target directory for downloads")
     parser.add_argument('-w', '--wait',  action="store_true", default=False, help="Wait for WiFi SD to appear on the network")
+    parser.add_argument('-i', '--domain', default="ezshare.card", help="Specify the domain to connect to")
     parser.add_argument('--live', type=int, default=-1, help="Live mode. Don't exit after syncronisation."
                                                              "The argument specifies cooldown in seconds between sync. See docs for details")
 
     args = parser.parse_args()
-    s = ezshare(num_retries=args.number_retries)
+    url = f"http://{args.domain}/dir?dir=A:"
+    s = ezshare(url, num_retries=args.number_retries)
     while True:
         _handle_args_once(args, s)
         if args.live >= 0:
